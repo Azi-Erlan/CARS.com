@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from .models import Car
 
 def bmw(req):
     return HttpResponse("""
@@ -21,3 +23,13 @@ def mercedes(req):
         Слоган: «The Best or Nothing» (Лучшее или ничего).</p>
         <img src=https://img.championat.com/s/732x488/news/big/i/g/mercedes-amg-cle-53-4matic-coupe_1701859873820942894.jpg>
     """)
+
+
+def cars_list_view(req):
+    cars = Car.objects.all()
+    return render(req, 'car_list.html', {'cars': cars})
+
+
+def cars_detail_view(req, id):
+    car = get_object_or_404(Car, id=id)
+    return render(req, 'car_detail.html', {'car': car})
