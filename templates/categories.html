@@ -1,0 +1,7 @@
+<n1>Categories</n1>
+{% for category in categories %}
+<p>
+    <a href="/categories/{{ category.id}}"> 
+        {{ category.name}} </a>
+</p>
+{% endfor %}
