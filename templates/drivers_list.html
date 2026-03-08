@@ -1,0 +1,12 @@
+{% for i in drivers %}
+
+<p>{{ i.full_name }}</p>
+<p>{{ i.car }}</p>
+<p>{{ i.experience }}</p>
+<p>{{ i.birth_date }}</p>
+<p>{{ i.license }}</p>
+
+<a href="/update_driver/{{ i.id }}/">Изменить данные</a>
+<a href="/delete_driver/{{ i.id }}/">Удалить анкету</a>
+
+{% endfor %}
