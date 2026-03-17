@@ -1,9 +1,35 @@
 <h1>Cars</h1>
 
+<form action="/search/" method="GET">
+    <input type="text" name="s" placeholder="Поиск...">
+    <button type="submit">Найти</button>
+</form>
+
 {% for car in cars %}
-    <h2>
-        <a href="/cars/{{ car.id }}/">
-            {{ car.name }}
-        </a>
-    </h2>
+
+<p>{{ car.name }}</p>
+<p>{{ car.description }}</p>
+<img src="{{ car.image.url }}" width="300">
+
+<a href="/cars/{{ car.id }}/">Подробнее</a>
+
 {% endfor %}
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if cars.has_previous %}
+            <a href="?page=1">Первая</a>
+            <a href="?page={{ cars.previous_page_number }}">Предыдущая</a>
+        {% endif %}
+
+        <span>
+            Страница {{ cars.number }} из {{ cars.paginator.num_pages }}
+        </span>
+
+        {% if cars.has_next %}
+            <a href="?page={{ cars.next_page_number }}">Следующая</a>
+            <a href="?page={{ cars.paginator.num_pages }}">Последняя</a>
+        {% endif %}
+    </span>
+</div>

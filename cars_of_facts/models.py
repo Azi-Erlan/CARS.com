@@ -10,6 +10,10 @@ class Car(models.Model):
     price = models.IntegerField()
     description = models.TextField()
     image = models.ImageField(upload_to='cars/')
+    
+    
+    views = models.PositiveIntegerField(default=0, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

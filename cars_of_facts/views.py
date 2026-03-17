@@ -1,7 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
 from .models import Car
+from django.core.paginator import Paginator
+from django.db.models import F
+
 
 def bmw(req):
     return HttpResponse("""
@@ -25,11 +27,56 @@ def mercedes(req):
     """)
 
 
+def search_car_view(request):
+    query = request.GET.get("s", "")
+    if query:
+        cars = Car.objects.filter(name__icontains=query)
+    else:
+        cars = Car.objects.none()
+
+    return render(
+        request,
+        'car_list.html',
+        {
+            "cars": cars,
+        }
+    )
+
+
 def cars_list_view(req):
-    cars = Car.objects.all()
-    return render(req, 'car_list.html', {'cars': cars})
+    if req.method == 'GET':
+        cars = Car.objects.all().order_by('-id')
+
+        paginator = Paginator(cars, 2)
+        page = req.GET.get('page')
+        page_obj = paginator.get_page(page)
+
+    return render(
+        req,
+        'car_list.html',
+        {
+            "cars": page_obj,
+        }
+    )
 
 
 def cars_detail_view(req, id):
-    car = get_object_or_404(Car, id=id)
-    return render(req, 'car_detail.html', {'car': car})
+    if req.method == 'GET':
+        car = get_object_or_404(Car, id=id)
+        viewed = req.session.get('viewed_car', [])
+
+        if id not in viewed:
+            car.views = F("views") + 1
+            car.save()
+            car.refresh_from_db()
+
+            viewed.append(id)
+            req.session['viewed_car'] = viewed
+
+    return render(
+        req,
+        'car_detail.html',
+        {
+            'car': car,
+        }
+    )
