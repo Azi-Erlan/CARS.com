@@ -1,59 +1,35 @@
-from django.shortcuts import render, redirect
+from django.views import generic
+from django.urls import reverse_lazy
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
+from django.shortcuts import redirect
 from . import forms
 
 
-def register_view(request):
-    if request.method == 'POST':
-        form = forms.CustomRegisterForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('/login/')
-    else:
-        form = forms.CustomRegisterForm()
-    return render(
-        request,
-        'register.html',
-        {
-            'form': form,
-        }
-    )
+class RegisterView(generic.CreateView):
+    template_name = 'register.html'
+    form_class = forms.CustomRegisterForm
+    success_url = reverse_lazy('login')
 
 
-def auth_login_view(request):
-    if request.method == 'POST':
-        form = forms.LoginForm(data=request.POST)
+class LoginView(generic.FormView):
+    template_name = 'login.html'
+    form_class = forms.LoginForm
+    success_url = reverse_lazy('congratulation')
 
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('/congratulation/')
-    else:
-        form = forms.LoginForm()
-
-    return render(
-        request,
-        'login.html',
-        {
-            "form": form
-        }
-    )
+    def form_valid(self, form):
+        user = form.get_user()
+        login(self.request, user)
+        return super().form_valid(form)
 
 
-def auth_logout_view(request):
-    logout(request)
-    return redirect('/login/')
+class LogoutView(generic.View):
+    def get(self, request):
+        logout(request)
+        return redirect('login')
 
 
-def cong_view(request):
-    if request.method == 'GET':
-        user = User.objects.all()
-
-    return render(
-        request,
-        'cong.html',
-        {
-            'user': user
-        }
-    )
+class CongratulationView(generic.ListView):
+    template_name = 'cong.html'
+    model = User
+    context_object_name = 'user'

@@ -9,8 +9,7 @@ class Car(models.Model):
     color = models.CharField(max_length=50)
     price = models.IntegerField()
     description = models.TextField()
-    image = models.ImageField(upload_to='cars/')
-    
+    image = models.ImageField(upload_to='cars/', blank=True, null=True)    
     
     views = models.PositiveIntegerField(default=0, null=True)
 

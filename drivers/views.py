@@ -1,57 +1,36 @@
-from django.shortcuts import render, redirect
-from drivers.forms import DriverForm
+from django.views import generic
+from django.urls import reverse_lazy
 from drivers.models import Driver
+from drivers.forms import DriverForm
 
 
-def create_driver_view(request):
-
-    if request.method == "POST":
-
-        form = DriverForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            form.save()
-            return redirect('/drivers_list/')
-
-    else:
-        form = DriverForm()
-
-    return render(
-        request,
-        'create_driver.html',
-        {'form': form}
-    )
-
-def drivers_list_view(request):
-
-    if request.method == "GET":
-
-        drivers = Driver.objects.all().order_by('-id')
-
-    return render(request, 'drivers_list.html', {'drivers': drivers})
-
-def update_driver_view(request, id):
-
-    driver = Driver.objects.get(id=id)
-
-    if request.method == "POST":
-
-        form = DriverForm(request.POST, request.FILES, instance=driver)
-
-        if form.is_valid():
-            form.save()
-            return redirect('/drivers_list/')
-
-    else:
-        form = DriverForm(instance=driver)
-
-    return render(request, 'create_driver.html', {'form': form})
+class DriverCreateView(generic.CreateView):
+    template_name = 'create_driver.html'
+    form_class = DriverForm
+    success_url = reverse_lazy('drivers_list')
 
 
-def delete_driver_view(request, id):
+class DriverListView(generic.ListView):
+    template_name = 'drivers_list.html'
+    model = Driver
+    context_object_name = 'drivers'
 
-    driver = Driver.objects.get(id=id)
+    def get_queryset(self):
+        return self.model.objects.all().order_by('-id')
 
-    driver.delete()
 
-    return redirect('/drivers_list/')
+class DriverUpdateView(generic.UpdateView):
+    template_name = 'create_driver.html'
+    form_class = DriverForm
+    model = Driver
+    pk_url_kwarg = 'id'
+    success_url = reverse_lazy('drivers_list')
+
+
+class DriverDeleteView(generic.DeleteView):
+    model = Driver
+    pk_url_kwarg = 'id'
+    success_url = reverse_lazy('drivers_list')
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
